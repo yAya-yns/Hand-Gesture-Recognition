@@ -1,9 +1,2 @@
-Gesture detection - We implement a model to distinguish between a large class of hand gestures, using . This model will consist of a keypoint detector to generate a small array of keypoints, followed by another model to distinguish the gestures based on the keypoints. The model will be trained using a public hand gesture dataset, such as sdhttps://www.kaggle.com/gti-upm/leapgestrecog?
- Examples:
-	Fully connected model
-	GNN
-	VAE
-Possible Extended Goals:
-	Train the model end-to-end, letting the model itself pick the keypoints. 
-	Using a siamese network and VAE, allow for few-shot learning of custom gestures
-	Speed up inference to run real-time (>5FPS)
+The goal of this project is to categorize human hand gestures using a machine learning approach. The motivation is to offer an alternative method of human-computer interfacing to people with disabilities or the elderly, as well as average consumers. With this new method, we hope to promote inclusivity and expand usability in consumer electronics. 
+Traditional methods of hand gesture recognition and categorization involve additional devices such as specially designed gloves or depth camera, which are inconvenient, unintuitive, and require extra expenses on the user. Thus, RGB-based computer vision is the best solution. Considering the complexity and reliability requirement of the task, we propose to use deep learning based computer vision (CV) techniques, as it offers more flexibility, accuracy, and possibility of feature expansion compared to traditional CV techniques.
