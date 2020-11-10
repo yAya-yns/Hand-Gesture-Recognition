@@ -7,7 +7,7 @@ import pickle
 
 from torch import nn
 from enum import Enum
-from PIL import Image
+# from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 
 class DataClass(Enum):
