@@ -7,7 +7,7 @@ import pickle
 
 from torch import nn
 from enum import Enum
-# from PIL import Image
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 
 class DataClass(Enum):
@@ -20,11 +20,13 @@ class HandGesturesDataset(Dataset):
 
     def __init__(
         self,
-        data_type
+        data_type,
+        return_label=False
     ):
 
         self.data_type = data_type
         self.file_list = os.listdir(self.data_type.value)
+        self.return_label = return_label
 
     def __len__(self):
         return len(self.file_list)
@@ -37,6 +39,9 @@ class HandGesturesDataset(Dataset):
 
         keypoints = (keypoints - keypoints.min(axis=0))\
             /(keypoints.max(axis=0)-keypoints.min(axis=0))
+
+        if self.return_label:
+            return keypoints.flatten(), name.split('_')[1]
         return keypoints.flatten()
 
 

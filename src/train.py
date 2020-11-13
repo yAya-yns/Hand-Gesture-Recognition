@@ -1,6 +1,7 @@
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
+import numpy as np
 
 from torch import nn
 from model import AutoEncoder
@@ -74,8 +75,8 @@ def train_model(
 
         training_losses.append(current_training_loss/num_training_images)
 
-        fingerprint = f'./weights/{"-".join(config + [str(i)])}.pth'
-        torch.save(model.state_dict(), fingerprint)
+        #fingerprint = f'./weights/{"-".join(config + [str(i)])}.pth'
+        #torch.save(model.state_dict(), fingerprint)
 
         current_validation_loss = 0
         num_validation_images = validation_dataset.__len__()
@@ -100,6 +101,8 @@ def train_model(
     plt.ylabel('Loss')
     plt.show()
 
+    torch.save(model.state_dict(), './weights/autoencoder.pth')
+
 if __name__ == '__main__':
 
 
@@ -112,14 +115,16 @@ if __name__ == '__main__':
 
     dataloader = DataLoader(dataset)
 
+    '''
+
     encodings = []
 
     for data in dataloader:
-        encodings.append(model.encoder(torch.Tensor(image).float()).cpu().detach())
+        encodings.append(model.encoder(torch.Tensor(data.float()).float()).cpu().detach())
 
     with open('./encodings.npy', 'wb') as f:
         np.save(f,np.vstack(encodings))
 
-
+    '''
 
 
