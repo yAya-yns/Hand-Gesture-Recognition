@@ -32,7 +32,7 @@ def inference(data_type=DataClass.TRAINING_SET):
 
         encodings.append([label[0]] + list(model.encoder(torch.Tensor(data.float()).cuda()).cpu().detach().numpy()[0]))
 
-    with open('./encodings.npy', 'wb') as f:
+    with open('./data/encodings.npy', 'wb') as f:
         np.save(f,np.vstack(encodings))
 
 if __name__ == '__main__':

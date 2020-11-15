@@ -20,6 +20,10 @@ data/poses/train/
 
 in train have all the npy files for gestures
 
+This file is in the repo - however you need to unzip the files in the
+data folder
+'''
+
 def train_model(
     model,
     learning_rate=0.5,

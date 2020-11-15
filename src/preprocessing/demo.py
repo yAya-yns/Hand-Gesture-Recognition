@@ -11,7 +11,7 @@ from src.hand import Hand
 Code to get poses
 
 You should not need to run this because I already ran the poses which
-are saved onto Google Drive. Get these and look at train.py for what
+are saved in this repo. Look at train.py for what
 to do next.
 
 If you need to generate new poses, download the pose repo:
