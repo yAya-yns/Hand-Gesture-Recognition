@@ -7,6 +7,16 @@ from torch.utils.data import Dataset, DataLoader
 from dataloader import DataClass, HandGesturesDataset
 from model import AutoEncoder
 
+'''
+Here we generate the latent encodings for our data.
+
+Nothing special should be run - just make sure the previous step
+(train.py) is run
+
+After that this script should generate an encodings.npy, a Nx16
+matrix to do clustering on.
+'''
+
 def inference(data_type=DataClass.TRAINING_SET):
 
     model_path = './weights/autoencoder.pth'

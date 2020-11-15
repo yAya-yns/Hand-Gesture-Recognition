@@ -10,6 +10,16 @@ from torch.utils.data import Dataset, DataLoader
 
 torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
+'''
+How to train:
+
+Make sure that there is a data folder in the same folder. In this folder
+should be the following path:
+
+data/poses/train/
+
+in train have all the npy files for gestures
+
 def train_model(
     model,
     learning_rate=0.5,
@@ -21,6 +31,14 @@ def train_model(
     **kwargs
 ):
 
+    '''
+    Here is the model training code.
+
+    Nothing too interesting here.
+    '''
+
+
+    #Train on CPU if one available
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     if torch.cuda.is_available:
@@ -29,7 +47,6 @@ def train_model(
     model.to(device)
 
     training_losses = []
-
     validation_losses = []
 
     criterion = nn.MSELoss()
@@ -75,27 +92,9 @@ def train_model(
 
         training_losses.append(current_training_loss/num_training_images)
 
-        #fingerprint = f'./weights/{"-".join(config + [str(i)])}.pth'
-        #torch.save(model.state_dict(), fingerprint)
-
         current_validation_loss = 0
         num_validation_images = validation_dataset.__len__()
 
-        for images in validation_dataloader:
-
-            num_images = images.shape[0]
-
-            images = images.float()
-
-            outputs = model(images)
-            loss = criterion(outputs, images)
-
-            #Use loss.data to free up gpu memory
-            current_validation_loss += loss.data*num_images
-
-        validation_losses.append(current_validation_loss/num_validation_images)
-
-    plt.plot(validation_losses)
     plt.plot(training_losses)
     plt.xlabel('Number of Epochs')
     plt.ylabel('Loss')
@@ -109,22 +108,4 @@ if __name__ == '__main__':
     model = AutoEncoder()
 
     train_model(model)
-
-
-    dataset = HandGesturesDataset(DataClass.TRAINING_SET)
-
-    dataloader = DataLoader(dataset)
-
-    '''
-
-    encodings = []
-
-    for data in dataloader:
-        encodings.append(model.encoder(torch.Tensor(data.float()).float()).cpu().detach())
-
-    with open('./encodings.npy', 'wb') as f:
-        np.save(f,np.vstack(encodings))
-
-    '''
-
 

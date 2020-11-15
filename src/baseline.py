@@ -1,5 +1,9 @@
 from torch import nn
 
+'''
+AE we learned in class
+'''
+
 class Baseline(nn.Module):
 
     def __init__(self, ch1=6, ch2=12, stride=1, hidden=64, classes=11):

@@ -3,6 +3,14 @@ import shutil
 import random
 import random
 
+'''
+HOW TO RUN:
+
+1) Drag and drop acquisitions folder for dataset in the same file path
+as this command
+
+Should not need to run (I provide the images on our drive)
+'''
 people = os.listdir('./acquisitions')
 if 'data' not in os.listdir():
     os.mkdir('data')
