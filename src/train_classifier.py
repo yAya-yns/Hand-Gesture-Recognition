@@ -17,23 +17,24 @@ def get_accuracy(model, data_loader, auto_encoder__path='./weights/autoencoder.p
     auto_model.load_state_dict(torch.load(auto_encoder__path))
     auto_model.eval()
     auto_model = auto_model.encoder
-
+    model = model.to('cuda')
     correct = 0
     total = 0
     if torch.cuda.is_available():
-        print("Using GPU for accuracy calculation")
+        # print("Using GPU for accuracy calculation")
         use_CUDA = True
     else:
         use_CUDA = False
 
     for images, labels in iter(data_loader):
-        if use_CUDA:
-            images = images.cuda()
-            labels = labels.cuda()
-        print(labels)
-        print(labels.shape)
-        xxxxxx
-        model_out = model(images)
+        images = images.float()
+        images = images.to('cuda')
+        num_labels = []
+        for i in range(len(labels)):
+            idx = int(labels[i][1:]) - 1
+            num_labels.append(idx)
+        num_labels = torch.tensor(num_labels).long().to('cuda')
+        
         embedding = auto_model(images)
         outputs = model(embedding)
         outputs = F.softmax(outputs, dim=1)
@@ -41,7 +42,7 @@ def get_accuracy(model, data_loader, auto_encoder__path='./weights/autoencoder.p
         
         #print(model_out)
         #print(pred)
-        correct += pred.eq(labels.view_as(pred)).sum().item()
+        correct += pred.eq(num_labels.view_as(pred)).sum().item()
         #print(labels)
         #print(correct)
         total += images.shape[0]
@@ -78,6 +79,8 @@ def train_classifier(
 
     training_losses = []
     validation_losses = []
+    training_acc = []
+    validation_acc = []
 
     criterion = nn.CrossEntropyLoss()
     lsm = nn.LogSoftmax(dim=1)
@@ -88,8 +91,8 @@ def train_classifier(
 
     if perform_validation:
 
-        validation_dataset = HandGesturesDataset(DataClass.VALIDATION_SET, **kwargs)
-        validation_dataloader = DataLoader(validation_dataset, batch_size=64)
+        validation_dataset = HandGesturesDataset(DataClass.VALIDATION_SET, return_label=True)
+        validation_dataloader = DataLoader(validation_dataset, shuffle=True, batch_size=batch_size)
 
     config = [
         model.__class__.__name__,
@@ -128,21 +131,35 @@ def train_classifier(
             optimizer.zero_grad()
 
             current_training_loss += loss.data*num_images
-        print(current_training_loss)
-        # print(get_accuracy(model, dataloader))
-
         
+
+
         training_losses.append(current_training_loss/num_training_images)
+        training_acc.append(get_accuracy(model, dataloader))
+        validation_acc.append(get_accuracy(model, validation_dataloader))
+        print("train_acc = {}, valid_acc = {}".format(training_acc[-1], validation_acc[-1]))
+        print("loss = {}".format(training_losses[-1]))
 
         current_validation_loss = 0
         num_validation_images = validation_dataset.__len__()
 
-    plt.plot(training_losses)
+    torch.save(model.state_dict(), './weights/classifier.pth')
+
+    plt.plot(training_losses, label = "training_losses")
     plt.xlabel('Number of Epochs')
-    plt.ylabel('Loss')
+    plt.ylabel('Training_Loss')
+    plt.legend()
     plt.show()
 
-    torch.save(model.state_dict(), './weights/classifier.pth')
+    plt.plot(training_acc, label = "training_acc")
+    plt.plot(validation_acc, label = "validation_acc")
+    plt.xlabel('Number of Epochs')
+    plt.ylabel('Acc')
+    plt.legend()
+    plt.show()
+
+
+    
 
 
 if __name__ == '__main__':
