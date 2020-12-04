@@ -9,10 +9,50 @@ from model import Classifier
 from dataloader import DataClass, HandGesturesDataset
 from torch.utils.data import Dataset, DataLoader
 
+def get_accuracy(model, data_loader, auto_encoder__path='./weights/autoencoder.pth'):
+    """
+    calcualte accuracy
+    """
+    auto_model = AutoEncoder().to('cuda')
+    auto_model.load_state_dict(torch.load(auto_encoder__path))
+    auto_model.eval()
+    auto_model = auto_model.encoder
+
+    correct = 0
+    total = 0
+    if torch.cuda.is_available():
+        print("Using GPU for accuracy calculation")
+        use_CUDA = True
+    else:
+        use_CUDA = False
+
+    for images, labels in iter(data_loader):
+        if use_CUDA:
+            images = images.cuda()
+            labels = labels.cuda()
+        print(labels)
+        print(labels.shape)
+        xxxxxx
+        model_out = model(images)
+        embedding = auto_model(images)
+        outputs = model(embedding)
+        outputs = F.softmax(outputs, dim=1)
+        pred = torch.argmax(outputs, dim=1)
+        
+        #print(model_out)
+        #print(pred)
+        correct += pred.eq(labels.view_as(pred)).sum().item()
+        #print(labels)
+        #print(correct)
+        total += images.shape[0]
+
+    return correct / total 
+
+
 def train_classifier(
     model,
     auto_encoder__path='./weights/autoencoder.pth',
-    learning_rate=0.5,
+    learning_rate=0.05,
     data_class=DataClass.TRAINING_SET,
     batch_size=64,
     num_epochs=250,
@@ -20,10 +60,12 @@ def train_classifier(
     perform_validation=True,
     **kwargs
 ):
+    torch.manual_seed(1000)
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     if torch.cuda.is_available():
         print('GPU detected!')
         model.to(device)
+        # CUDA_LAUNCH_BLOCKING=1
 
 
     
@@ -37,7 +79,8 @@ def train_classifier(
     training_losses = []
     validation_losses = []
 
-    criterion = nn.MSELoss()
+    criterion = nn.CrossEntropyLoss()
+    lsm = nn.LogSoftmax(dim=1)
     optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
     dataset = HandGesturesDataset(data_class, return_label=True)
@@ -67,29 +110,28 @@ def train_classifier(
             images = images.float()
             num_labels = []
             for i in range(len(labels)):
-                num_labels.append(int(labels[i][1:]))
-            num_labels = torch.tensor(num_labels).to('cuda')
+                idx = int(labels[i][1:]) - 1
+                num_labels.append(idx)
+            num_labels = torch.tensor(num_labels).long().to('cuda')
             num_images = images.shape[0]
 
-            optimizer.zero_grad()
-
+            
             embedding = auto_model(images)
             outputs = model(embedding)
-            outputs = F.softmax(outputs)
-            outputs = torch.argmax(outputs, dim=1)
-
-            outputs = outputs.to(torch.float32)
-            num_labels = num_labels.to(torch.float32)
+            outputs = F.softmax(outputs, dim=1)
             
+            # outputs = torch.argmax(outputs, dim=1)
+
             loss = criterion(outputs, num_labels)
-            loss.requires_grad = True 
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
 
             current_training_loss += loss.data*num_images
         print(current_training_loss)
+        # print(get_accuracy(model, dataloader))
 
+        
         training_losses.append(current_training_loss/num_training_images)
 
         current_validation_loss = 0
