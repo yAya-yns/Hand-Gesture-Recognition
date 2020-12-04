@@ -1,8 +1,6 @@
 from torch import nn
 
-'''
-AE we learned in class
-'''
+
 
 class Baseline(nn.Module):
 
