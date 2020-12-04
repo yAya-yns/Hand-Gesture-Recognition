@@ -14,6 +14,7 @@ class DataClass(Enum):
     TRAINING_SET = './data/poses/train'
     VALIDATION_SET = './data/poses/validation'
     TEST_SET = './data/poses/test'
+    CUS_TEST_SET = './data/cus_test'
 
 class HandGesturesDataset(Dataset):
     """Hand Gestures Dataset."""
@@ -21,7 +22,7 @@ class HandGesturesDataset(Dataset):
     def __init__(
         self,
         data_type,
-        return_label=False
+        return_label=True
     ):
 
         self.data_type = data_type
@@ -34,8 +35,12 @@ class HandGesturesDataset(Dataset):
     def __getitem__(self, idx):
 
         name = self.file_list[idx]
+        # print(name)
+        if name.endswith(".ini"):
+            return
+
         with open(f'{self.data_type.value}/{name}', 'rb') as f:
-            keypoints = np.load(f)
+            keypoints = np.load(f, allow_pickle=True)
 
         keypoints = (keypoints - keypoints.min(axis=0))\
             /(keypoints.max(axis=0)-keypoints.min(axis=0))
