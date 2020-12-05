@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torchsummary import summary
 import matplotlib.pyplot as plt
 
 import os
@@ -119,6 +120,8 @@ def train(model, train_loader, val_loader, batch_size=27, num_epochs=1, learn_ra
 
 myModel = FC_classifier()
 myModel = myModel.float()
+summary(myModel, (1, 42, 1))
+pdb.set_trace()
 # train(myModel, train_loader, valid_loader, batch_size=27,  num_epochs=50)
 
 test_set = HandGesturesDataset(DataClass.CUS_TEST_SET)
