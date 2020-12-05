@@ -9,7 +9,7 @@ from model import Classifier
 from dataloader import DataClass, HandGesturesDataset
 from torch.utils.data import Dataset, DataLoader
 
-def get_accuracy(model, data_loader, auto_encoder__path='./weights/autoencoder.pth'):
+def get_accuracy(model, data_loader, auto_encoder__path):
     """
     calcualte accuracy
     """
@@ -135,15 +135,15 @@ def train_classifier(
 
 
         training_losses.append(current_training_loss/num_training_images)
-        training_acc.append(get_accuracy(model, dataloader))
-        validation_acc.append(get_accuracy(model, validation_dataloader))
+        training_acc.append(get_accuracy(model, dataloader, auto_encoder__path))
+        validation_acc.append(get_accuracy(model, validation_dataloader, auto_encoder__path))
         print("train_acc = {}, valid_acc = {}".format(training_acc[-1], validation_acc[-1]))
         print("loss = {}".format(training_losses[-1]))
 
         current_validation_loss = 0
         num_validation_images = validation_dataset.__len__()
 
-    torch.save(model.state_dict(), './weights/classifier.pth')
+    torch.save(model.state_dict(), './weights/classifier_embed_20.pth')
 
     plt.plot(training_losses, label = "training_losses")
     plt.xlabel('Number of Epochs')
@@ -164,5 +164,5 @@ def train_classifier(
 
 if __name__ == '__main__':
     model = Classifier()
-
+    # train_classifier(model, auto_encoder__path='./weights/autoencoder_embed_20.pth')
     train_classifier(model)
