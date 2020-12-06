@@ -2,10 +2,12 @@ import umap
 import numpy as np
 import matplotlib.pyplot as plt
 import hdbscan
+import pickle
 
 from scipy import spatial
 from mpl_toolkits.mplot3d import Axes3D
-
+from dataloader import DataClass, HandGesturesDataset
+from torch.utils.data import Dataset, DataLoader
 '''
 Clustering algo.
 
@@ -49,9 +51,13 @@ def denoise_pointcloud(points):
     return points[indices_to_keep]
 
 
-def plot_detection_ellipsoid(cluster_dict, ax):
+def plot_detection_ellipsoid(cluster_dict, ax, test_only=False):
 
     for k, v in cluster_dict.items():
+
+        if test_only:
+            if 'T' not in k:
+                continue
 
         coefs = v['std']
         centroid = v['centroid']
@@ -84,6 +90,8 @@ def assign_clusters(labels, embeddings):
 
     for label in unique_labels:
 
+        points = embeddings[labels == label]
+
         points = denoise_pointcloud(embeddings[labels == label])
 
         centroid = points.mean(axis=0)
@@ -108,11 +116,38 @@ def get_colors(labels):
 
 if __name__ == '__main__':
 
-    with open('./data/encodings.npy', 'rb') as f:
-        file = np.load(f, allow_pickle=True)
+    plot_test_only = True
 
-    embeddings = file[:,1:]
-    labels = file[:,0]
+    data_class = DataClass.TRAINING_SET
+    batch_size = 64
+
+    dataset = HandGesturesDataset(data_class, return_label=True)
+    dataloader = DataLoader(dataset, shuffle=True, batch_size=batch_size)
+
+    keypoints = []
+    all_labels = []
+
+    dataset_custom = HandGesturesDataset(DataClass.CUSTOM, return_label=True)
+    dataloader_custom = DataLoader(dataset_custom, shuffle=True, batch_size=batch_size)
+
+    for images, labels in dataloader:
+
+        #print(labels, images)
+        keypoints.append(images.numpy())
+        all_labels.append(labels)
+
+    for images, labels in dataloader_custom:
+
+        #print(labels, images)
+        keypoints.append(images.numpy())
+        all_labels.append(labels)
+
+
+    #with open('./data/encodings.npy', 'rb') as f:
+        #file = np.load(f, allow_pickle=True)
+
+    embeddings = np.concatenate(keypoints)
+    labels = np.concatenate(all_labels)
 
     colors = get_colors(labels)
 
@@ -124,17 +159,31 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
+    if plot_test_only:
+        mask = [True if 'T' in label else False for label in labels]
+
+        embeddings = embeddings[mask]
+        colors = np.array(colors)[mask]
 
     ax.scatter(embeddings[:,0],embeddings[:,1],embeddings[:,2], c=colors)
     ax.set(xlim=(-10,10), ylim=(-10,10), zlim=(-10,10))
 
     for k, v in cluster_dict.items():
 
+        if plot_test_only:
+            if 'T' not in k:
+                continue
+
         x, y, z = v['centroid']
         ax.scatter(x, y, z, s=50, c='r')
 
 
-    plot_detection_ellipsoid(cluster_dict, ax)
+    plot_detection_ellipsoid(cluster_dict, ax, test_only=plot_test_only)
 
     plt.show()
 
+    with open('./encoder.pkl', 'wb') as f:
+        pickle.dump(encoder, f)
+
+    with open('./label_dict.pkl', 'wb') as f:
+        pickle.dump(cluster_dict, f)

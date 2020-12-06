@@ -3,3 +3,10 @@
 *.pyc
 *.swp
 *.ini
+*.bin
+*.png
+*.csv
+*.zip
+*.pdf
+*.pkl
+*.mat
