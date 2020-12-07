@@ -117,6 +117,13 @@ def train(model, train_loader, val_loader, batch_size=27, num_epochs=1, learn_ra
     print("Final Validation Accuracy: {}".format(val_acc[-1]))
     print('done')
 
+def eval(model, eval_set):
+    out = []
+    for image in eval_set:
+        model_out = model(image)
+        out.append(model_out.detach().numpy())
+    return out
+
 
 myModel = FC_classifier()
 myModel = myModel.float()
@@ -126,6 +133,17 @@ pdb.set_trace()
 
 test_set = HandGesturesDataset(DataClass.CUS_TEST_SET)
 test_loader = DataLoader(test_set)
-train(myModel, train_loader, test_loader, batch_size=27,  num_epochs=50)
+
+eval_set = HandGesturesDataset(DataClass.ZILI_TEST, False)
+eval_loader = DataLoader(eval_set)
+
+train(myModel, train_loader, test_loader, batch_size=27,  num_epochs=30)
+out = eval(myModel, eval_loader)
+
+out = np.array(out)
+outf = np.argmax(out, axis=1)
+pdb.set_trace()
+with open("for_zili.npy", "w") as f:
+    np.save(f, outf)
 
 pdb.set_trace()

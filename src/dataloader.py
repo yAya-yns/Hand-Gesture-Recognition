@@ -15,6 +15,7 @@ class DataClass(Enum):
     VALIDATION_SET = './data/poses/validation'
     TEST_SET = './data/poses/test'
     CUS_TEST_SET = './data/cus_test'
+    ZILI_TEST = './data/zili_test'
 
 class HandGesturesDataset(Dataset):
     """Hand Gestures Dataset."""
