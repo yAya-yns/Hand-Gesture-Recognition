@@ -113,4 +113,3 @@ if __name__ == '__main__':
     model = AutoEncoder()
 
     train_model(model)
-
