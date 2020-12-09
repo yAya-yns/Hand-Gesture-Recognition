@@ -8,7 +8,7 @@ from model import AutoEncoder
 from dataloader import DataClass, HandGesturesDataset
 from torch.utils.data import Dataset, DataLoader
 
-torch.set_default_tensor_type('torch.cuda.FloatTensor')
+# torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
 '''
 How to train:
@@ -42,11 +42,7 @@ def train_model(
     '''
 
 
-    #Train on CPU if one available
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-    if torch.cuda.is_available:
-        print('GPU detected!')
+    device = torch.device('cpu')
 
     model.to(device)
 

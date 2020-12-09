@@ -41,7 +41,7 @@ class HandGesturesDataset(Dataset):
             /(keypoints.max(axis=0)-keypoints.min(axis=0))
 
         if self.return_label:
-            return keypoints.flatten(), name.split('_')[1]
+            return keypoints.flatten(), int(name.split('_')[1][1:]) - 1
         return keypoints.flatten()
 
 

@@ -17,7 +17,7 @@ class Baseline(nn.Module):
     def forward(self, x):
         x = self.pool(nn.functional.relu(self.conv1(x)))
         x = self.pool(nn.functional.relu(self.conv2(x)))
-        x = view(-1, 157 * 117 * 12)
+        x = x.view(-1, 157 * 117 * 12)
         x = nn.functional.relu(self.fc1(x))
         x = self.fc2(x)
         return x

@@ -7,16 +7,8 @@ def get_accuracy(model, data_loader):
     """
     correct = 0
     total = 0
-    if torch.cuda.is_available():
-        print("Using GPU for accuracy calculation")
-        use_CUDA = True
-    else:
-        use_CUDA = False
 
     for images, labels in iter(data_loader):
-        if use_CUDA:
-            images = images.cuda()
-            labels = labels.cuda()
         
         model_out = model(images)
         pred = model_out.max(1, keepdims=True)[1]
@@ -38,23 +30,12 @@ def train(model, train_loader, val_loader, batch_size=27, num_epochs=1, learn_ra
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learn_rate)
     losses, train_acc, val_acc, iters = [], [], [], []
-    
-    if torch.cuda.is_available():
-        use_CUDA = True
-        print("Using GPU for training")
-    else:
-        use_CUDA = False
 
     for epoch in range(num_epochs):
         print("epoch", epoch)
         for i, (images, labels) in enumerate(train_loader):
             if i % 5 == 0:
                 print(i * batch_size)
-
-            if use_CUDA:
-                # print("using GPU")
-                images = images.cuda()
-                labels = labels.cuda()
 
             model_out = model(images)
             # print(model_out)
@@ -68,7 +49,7 @@ def train(model, train_loader, val_loader, batch_size=27, num_epochs=1, learn_ra
         losses.append(float(loss)/batch_size)
 
         train_acc.append(get_accuracy(model, train_loader))
-        val_acc.append(get_accuracy(model, valid_loader))
+        val_acc.append(get_accuracy(model, val_loader))
 
         print('train acc: ' + str(train_acc[-1]) + ' | train loss: ' + str(float(loss)) + ' | valid acc: ' + str(val_acc[-1]))
         # print(n)
